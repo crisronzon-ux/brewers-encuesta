@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encuesta Brewers LTO — La Flor de Cordoba</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#F8F7FC;color:#1A1430;min-height:100vh}
+.app{max-width:600px;margin:0 auto;padding:16px}
+.header{background:linear-gradient(135deg,#534AB7,#7B5EA7);color:#fff;border-radius:14px;padding:16px 20px;margin-bottom:14px;display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(83,74,183,.3)}
+.hico{font-size:26px}
+.htitle{font-size:15px;font-weight:700;line-height:1.2}
+.hsub{font-size:12px;opacity:.8;margin-top:2px}
+.tabs{display:flex;background:#fff;border-radius:12px;padding:4px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.08);gap:4px}
+.tab{flex:1;padding:9px;font-size:13px;font-weight:500;border:none;border-radius:9px;cursor:pointer;transition:all .15s;background:transparent;color:#6B6880;font-family:inherit}
+.tab.on{background:#534AB7;color:#fff;box-shadow:0 2px 8px rgba(83,74,183,.3)}
+.card{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.fl{font-size:12px;font-weight:600;color:#6B6880;margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+/* Type buttons */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.type-btn{padding:18px 10px;border:1.5px solid #E0DEFA;border-radius:12px;cursor:pointer;background:#fff;text-align:center;transition:all .15s;font-family:inherit}
+.type-btn.on{border-color:#534AB7;background:#EEEDFE;box-shadow:0 2px 8px rgba(83,74,183,.15)}
+.type-icon{font-size:24px;display:block;margin-bottom:5px}
+.type-lbl{font-size:14px;font-weight:600;color:#1A1430;display:block}
+.type-sub{font-size:11px;color:#6B6880}
+/* Search input */
+.search-wrap{position:relative;margin-bottom:8px}
+.search-input{width:100%;padding:11px 36px 11px 14px;border:1.5px solid #E0DEFA;border-radius:10px;font-size:14px;font-family:inherit;color:#1A1430;background:#fff;outline:none;transition:border .15s}
+.search-input:focus{border-color:#534AB7}
+.search-ico{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#6B6880;font-size:16px;pointer-events:none}
+.search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:#6B6880;font-size:18px;cursor:pointer;background:none;border:none;font-family:inherit;display:none}
+/* Results list */
+.results{border:1.5px solid #E0DEFA;border-radius:10px;overflow:hidden;max-height:220px;overflow-y:auto;margin-bottom:12px;display:none}
+.result-item{padding:11px 14px;font-size:13px;cursor:pointer;color:#1A1430;border-bottom:1px solid #F0EFFA;transition:background .1s}
+.result-item:last-child{border-bottom:none}
+.result-item:hover,.result-item.sel{background:#EEEDFE;color:#3C3489;font-weight:500}
+.result-empty{padding:14px;font-size:13px;color:#6B6880;text-align:center}
+.selected-suc{background:#EEEDFE;border:1.5px solid #534AB7;border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;color:#3C3489;margin-bottom:12px;display:none;cursor:pointer}
+.selected-suc span{font-size:11px;font-weight:400;color:#534AB7;margin-left:6px}
+/* Form */
+input[type=text],input[type=password]{width:100%;padding:10px 12px;border:1.5px solid #E0DEFA;border-radius:10px;font-size:14px;font-family:inherit;color:#1A1430;background:#fff;margin-bottom:12px;outline:none;transition:border .15s}
+input[type=text]:focus,input[type=password]:focus{border-color:#534AB7}
+textarea{width:100%;padding:10px 12px;border:1.5px solid #E0DEFA;border-radius:10px;font-size:14px;font-family:inherit;color:#1A1430;background:#fff;resize:vertical;min-height:80px;margin-bottom:12px;outline:none;transition:border .15s}
+textarea:focus{border-color:#534AB7}
+.btn-p{width:100%;padding:13px;background:#534AB7;color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;box-shadow:0 3px 10px rgba(83,74,183,.3)}
+.btn-p:hover{opacity:.9}
+.btn-p:disabled{opacity:.5;cursor:not-allowed}
+.btn-s{padding:9px 18px;border:1.5px solid #E0DEFA;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;background:#fff;color:#534AB7;font-family:inherit;transition:all .15s}
+.btn-s:hover{background:#EEEDFE}
+.nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.step-ind{font-size:12px;color:#6B6880}
+.prog-wrap{margin-bottom:16px}
+.prog-track{height:5px;background:#E0DEFA;border-radius:5px}
+.prog-fill{height:5px;background:#534AB7;border-radius:5px;transition:width .3s}
+.prog-lbl{font-size:11px;color:#6B6880;margin-top:4px}
+.sec-lbl{font-size:11px;font-weight:700;color:#534AB7;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px}
+.q-title{font-size:14px;font-weight:600;color:#1A1430;margin-bottom:12px;line-height:1.5}
+.q-sub{font-size:12px;color:#6B6880;margin-bottom:10px}
+.stars{display:flex;gap:10px;margin-bottom:6px}
+.star{font-size:32px;cursor:pointer;color:#DDD;transition:color .1s;user-select:none;line-height:1}
+.star.on{color:#BA7517}
+.star-lbl{font-size:11px;color:#6B6880;margin-bottom:14px}
+.scale-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+.sc-btn{width:42px;height:42px;border:1.5px solid #E0DEFA;border-radius:10px;font-size:14px;cursor:pointer;background:#fff;color:#1A1430;transition:all .12s;font-family:inherit;font-weight:500}
+.sc-btn.on{background:#EEEDFE;border-color:#534AB7;color:#3C3489}
+.scale-lbs{display:flex;justify-content:space-between;font-size:11px;color:#6B6880;margin-bottom:14px}
+.cg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.ch{padding:11px 12px;border:1.5px solid #E0DEFA;border-radius:10px;font-size:13px;cursor:pointer;background:#fff;color:#1A1430;text-align:left;transition:all .12s;line-height:1.4;font-family:inherit}
+.ch.on{background:#EEEDFE;border-color:#534AB7;color:#3C3489;font-weight:500}
+/* Alerts */
+.al{padding:11px 14px;font-size:13px;margin-bottom:8px;border-radius:0 10px 10px 0;border-left:4px solid;line-height:1.5}
+.al-d{background:#FCEBEB;border-color:#E24B4A;color:#791F1F}
+.al-w{background:#FDF3E0;border-color:#BA7517;color:#633806}
+.al-ok{background:#EAF3DE;border-color:#2D9E4E;color:#1A5E30}
+/* Dashboard */
+.metric-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:14px}
+.metric{background:#F8F7FC;border-radius:10px;padding:12px;border:1px solid #E0DEFA}
+.metric-val{font-size:22px;font-weight:700;color:#1A1430}
+.metric-lbl{font-size:11px;color:#6B6880;margin-top:2px}
+.bc{display:flex;flex-direction:column;gap:7px}
+.br{display:flex;align-items:center;gap:8px}
+.bl{font-size:11px;color:#6B6880;min-width:90px;text-align:right;line-height:1.3}
+.bt{flex:1;height:18px;background:#F0EFFA;border-radius:4px;overflow:hidden}
+.bf{height:100%;border-radius:4px;transition:width .5s}
+.bv{font-size:11px;font-weight:600;color:#6B6880;min-width:26px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl th{text-align:left;padding:7px 8px;border-bottom:1.5px solid #E0DEFA;font-weight:600;color:#6B6880;font-size:11px;text-transform:uppercase;letter-spacing:.04em}
+.tbl td{padding:7px 8px;border-bottom:1px solid #F0EFFA;color:#4A4060;vertical-align:top}
+.tbl tr:last-child td{border-bottom:none}
+.bdg{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px}
+.bg{background:#EAF3DE;color:#2D7A3A}.ba{background:#FDF3E0;color:#7A4A10}
+.br2{background:#FCEBEB;color:#A32D2D}.bp{background:#EEEDFE;color:#3C3489}
+.bb{background:#E3F0FC;color:#1565C0}.bt2{background:#E1F5EE;color:#085041}
+.fr{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.fr select{width:auto;min-width:140px;margin-bottom:0;font-size:12px;padding:7px 10px;border:1.5px solid #E0DEFA;border-radius:10px;font-family:inherit;outline:none}
+.fr select:focus{border-color:#534AB7}
+.empty{text-align:center;padding:40px 16px;color:#6B6880}
+.comm-item{padding:11px 0;border-bottom:1px solid #F0EFFA}
+.comm-item:last-child{border-bottom:none}
+@media(max-width:480px){.g2{grid-template-columns:1fr}.cg{grid-template-columns:1fr}.type-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="header">
+  <div class="hico">&#9749;</div>
+  <div>
+    <div class="htitle">La Flor de Cordoba</div>
+    <div class="hsub">Encuesta de capacitacion &middot; Brewers LTO 2026</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab on" onclick="nav('survey')">&#128203; Encuesta</button>
+  <button class="tab" onclick="nav('dash')">&#128202; Dashboard</button>
+</div>
+
+<!-- ═══ SURVEY ═══ -->
+<div id="survey">
+<div id="s-intro">
+<div class="card">
+  <div style="font-size:15px;font-weight:600;color:#1A1430;margin-bottom:4px">Encuesta de satisfaccion</div>
+  <div style="font-size:13px;color:#6B6880;margin-bottom:18px;line-height:1.5">Anonima &middot; menos de 3 minutos &middot; Brewers LTO</div>
+
+  <!-- TIPO -->
+  <div class="fl">Tipo de operacion</div>
+  <div class="type-grid">
+    <button class="type-btn" id="t-corp" onclick="selectTipo('Corporativa')">
+      <span class="type-icon">&#127970;</span>
+      <span class="type-lbl">Corporativa</span>
+      <span class="type-sub">Sucursal propia</span>
+    </button>
+    <button class="type-btn" id="t-frq" onclick="selectTipo('Franquicia')">
+      <span class="type-icon">&#129309;</span>
+      <span class="type-lbl">Franquicia</span>
+      <span class="type-sub">Unidad franquiciada</span>
+    </button>
+  </div>
+
+  <!-- BUSCADOR -->
+  <div id="suc-wrap" style="display:none">
+    <div class="fl">Busca tu sucursal</div>
+    <div class="search-wrap">
+      <input class="search-input" type="text" id="suc-search"
+        placeholder="Escribe el nombre de tu sucursal..."
+        oninput="onSearch()" autocomplete="off" autocorrect="off" spellcheck="false">
+      <button class="search-clear" id="search-clear" onclick="clearSearch()">&#215;</button>
+      <span class="search-ico" id="search-ico">&#128269;</span>
+    </div>
+    <div class="results" id="suc-results"></div>
+    <div class="selected-suc" id="suc-selected" onclick="changeSelection()">
+      <span id="suc-selected-name"></span>
+      <span>Toca para cambiar</span>
+    </div>
+  </div>
+
+  <!-- INSTRUCTOR -->
+  <div id="inst-wrap" style="display:none">
+    <div class="fl">Instructor / Gerente que te capacito</div>
+    <input type="text" id="s-inst" placeholder="Nombre completo">
+    <button class="btn-p" onclick="startSurvey()">Comenzar encuesta &#8594;</button>
+  </div>
+</div>
+</div>
+
+<!-- PASOS -->
+<div id="s-form" style="display:none">
+  <div class="prog-wrap">
+    <div class="prog-track"><div class="prog-fill" id="prog" style="width:0%"></div></div>
+    <div class="prog-lbl" id="prog-lbl">Pregunta 1 de 8</div>
+  </div>
+
+  <div id="step1" class="card"><div class="sec-lbl">Metodologia</div><div class="q-title">1. Que tan claro fue el demo que hizo tu instructor al preparar las 3 bebidas?</div><div class="stars" id="q1"></div><div class="star-lbl">1 = nada claro &middot; 5 = muy claro</div><div class="nav-row"><div class="step-ind">1 de 8</div><button class="btn-s" onclick="next(1)">Siguiente &#8594;</button></div></div>
+
+  <div id="step2" class="card" style="display:none"><div class="sec-lbl">Metodologia</div><div class="q-title">2. El tiempo de practica fue suficiente para preparar las 3 bebidas con confianza?</div><div class="cg" id="q2"><button class="ch" onclick="pick('q2',this,'Si, fue suficiente')">Si, fue suficiente</button><button class="ch" onclick="pick('q2',this,'Necesitaba mas tiempo')">Necesitaba mas tiempo</button><button class="ch" onclick="pick('q2',this,'Fue demasiado tiempo')">Fue demasiado tiempo</button><button class="ch" onclick="pick('q2',this,'No hubo practica real')">No hubo practica real</button></div><div class="nav-row"><div class="step-ind">2 de 8</div><div style="display:flex;gap:8px"><button class="btn-s" onclick="prev(2)">&#8592; Atras</button><button class="btn-s" onclick="next(2)">Siguiente &#8594;</button></div></div></div>
+
+  <div id="step3" class="card" style="display:none"><div class="sec-lbl">Confianza</div><div class="q-title">3. Que tan seguro te sientes para preparar los 3 Brewers sin consultar la receta?</div><div class="scale-row" id="q3"></div><div class="scale-lbs"><span>Nada seguro</span><span>Muy seguro</span></div><div class="nav-row"><div class="step-ind">3 de 8</div><div style="display:flex;gap:8px"><button class="btn-s" onclick="prev(3)">&#8592; Atras</button><button class="btn-s" onclick="next(3)">Siguiente &#8594;</button></div></div></div>
+
+  <div id="step4" class="card" style="display:none"><div class="sec-lbl">Contenido</div><div class="q-title">4. Que parte fue mas util? <span style="font-weight:400;color:#6B6880">(elige hasta 2)</span></div><div class="cg" id="q4"><button class="ch" onclick="multi('q4',this,'Demo en vivo')">Demo en vivo del instructor</button><button class="ch" onclick="multi('q4',this,'Practica real')">Practica con producto real</button><button class="ch" onclick="multi('q4',this,'Speech de venta')">Speech de venta</button><button class="ch" onclick="multi('q4',this,'Receta laminada')">Receta laminada</button><button class="ch" onclick="multi('q4',this,'Manejo de objeciones')">Manejo de objeciones</button><button class="ch" onclick="multi('q4',this,'Perfil de sabores')">Perfil de sabores</button></div><div class="nav-row"><div class="step-ind">4 de 8</div><div style="display:flex;gap:8px"><button class="btn-s" onclick="prev(4)">&#8592; Atras</button><button class="btn-s" onclick="next(4)">Siguiente &#8594;</button></div></div></div>
+
+  <div id="step5" class="card" style="display:none"><div class="sec-lbl">Instructor</div><div class="q-title">5. Que tan bien explico el instructor el por que de cada paso de la receta?</div><div class="stars" id="q5"></div><div class="star-lbl">1 = no explico nada &middot; 5 = todo con claridad</div><div class="nav-row"><div class="step-ind">5 de 8</div><div style="display:flex;gap:8px"><button class="btn-s" onclick="prev(5)">&#8592; Atras</button><button class="btn-s" onclick="next(5)">Siguiente &#8594;</button></div></div></div>
+
+  <div id="step6" class="card" style="display:none"><div class="sec-lbl">Instructor</div><div class="q-title">6. Cuando cometiste un error, como lo manejo el instructor?</div><div class="cg" id="q6"><button class="ch" onclick="pick('q6',this,'Explico con claridad que corregir')">Explico con claridad que corregir</button><button class="ch" onclick="pick('q6',this,'Me interrumpio y lo hizo el mismo')">Me interrumpio y lo hizo el mismo</button><button class="ch" onclick="pick('q6',this,'No hubo feedback claro')">No hubo feedback claro</button><button class="ch" onclick="pick('q6',this,'No cometi errores')">No cometi errores</button></div><div class="nav-row"><div class="step-ind">6 de 8</div><div style="display:flex;gap:8px"><button class="btn-s" onclick="prev(6)">&#8592; Atras</button><button class="btn-s" onclick="next(6)">Siguiente &#8594;</button></div></div></div>
+
+  <div id="step7" class="card" style="display:none"><div class="sec-lbl">Materiales</div><div class="q-title">7. Los materiales entregados (receta laminada, tarjeta de objeciones) fueron suficientes?</div><div class="scale-row" id="q7"></div><div class="scale-lbs"><span>Insuficientes</span><span>Muy completos</span></div><div class="nav-row"><div class="step-ind">7 de 8</div><div style="display:flex;gap:8px"><button class="btn-s" onclick="prev(7)">&#8592; Atras</button><button class="btn-s" onclick="next(7)">Siguiente &#8594;</button></div></div></div>
+
+  <div id="step8" class="card" style="display:none"><div class="sec-lbl">Comentario abierto</div><div class="q-title">8. Algo que mejorarias, o algo positivo que quieras destacar?</div><div class="q-sub">Opcional</div><textarea id="q8" placeholder="Escribe aqui..."></textarea><div class="nav-row"><div class="step-ind">8 de 8</div><div style="display:flex;gap:8px"><button class="btn-s" onclick="prev(8)">&#8592; Atras</button><button class="btn-p" id="send-btn" style="width:auto;padding:10px 22px" onclick="submitSurvey()">Enviar &#8594;</button></div></div></div>
+</div>
+
+<div id="s-done" style="display:none" class="card">
+  <div style="text-align:center;padding:32px 0">
+    <div style="font-size:48px;margin-bottom:12px">&#9989;</div>
+    <div style="font-size:15px;font-weight:600;color:#1A1430;margin-bottom:6px">Encuesta registrada</div>
+    <p style="font-size:13px;color:#6B6880;margin-bottom:20px;line-height:1.6">Tu respuesta quedo guardada. Gracias por tu tiempo.</p>
+    <button class="btn-s" onclick="resetSurvey()">Llenar otra encuesta</button>
+  </div>
+</div>
+</div>
+
+<!-- ═══ DASHBOARD ═══ -->
+<div id="dash" style="display:none">
+  <div id="dash-login" class="card">
+    <div style="font-size:15px;font-weight:600;color:#1A1430;margin-bottom:12px">&#128274; Acceso al dashboard</div>
+    <div class="fl">Contrasena</div>
+    <input type="password" id="dash-pass" placeholder="Contrasena de acceso" onkeydown="if(event.key==='Enter')checkPass()">
+    <p style="font-size:11px;color:#6B6880;margin-bottom:12px;margin-top:-8px">Solo para gerentes y area de capacitacion</p>
+    <button class="btn-p" onclick="checkPass()">Acceder</button>
+    <div id="pass-err" style="color:#E24B4A;font-size:12px;margin-top:8px;display:none">Contrasena incorrecta.</div>
+  </div>
+
+  <div id="dash-main" style="display:none">
+    <div class="fr">
+      <select id="f-tipo" onchange="renderDash()"><option value="">Corp + Franquicia</option><option>Corporativa</option><option>Franquicia</option></select>
+      <select id="f-suc" onchange="renderDash()"><option value="">Todas las sucursales</option></select>
+      <select id="f-ins" onchange="renderDash()"><option value="">Todos los instructores</option></select>
+      <button class="btn-s" onclick="clearF()" style="font-size:12px;padding:7px 12px">Limpiar</button>
+      <button class="btn-s" onclick="loadDB();renderDash()" style="font-size:12px;padding:7px 12px">&#8635; Actualizar</button>
+    </div>
+
+    <div id="d-empty" class="card empty" style="display:none">
+      <div style="font-size:32px;margin-bottom:10px">&#128203;</div>
+      <div style="font-weight:600;color:#1A1430;margin-bottom:4px">Sin respuestas aun</div>
+      <div>Las encuestas completadas aparecen aqui en tiempo real.</div>
+    </div>
+
+    <div id="d-content" style="display:none">
+      <div id="d-alerts"></div>
+      <div class="metric-grid" id="d-metrics"></div>
+      <div class="g2">
+        <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:10px">Claridad del demo</div><div class="bc" id="c-q1"></div></div>
+        <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:10px">Confianza post-sesion</div><div class="bc" id="c-q3"></div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:10px">Tiempo de practica</div><div class="bc" id="c-q2"></div></div>
+        <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:10px">Feedback instructor</div><div class="bc" id="c-q6"></div></div>
+      </div>
+      <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:10px">Partes mas valoradas</div><div class="bc" id="c-q4"></div></div>
+      <div class="g2">
+        <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:10px">Corp vs Franquicia</div><div class="bc" id="c-tipo"></div></div>
+        <div class="card"><div style="font-size:13px;font-weight:600;margin-bottom:10px">Top sucursales — demo</div><div class="bc" id="c-suc"></div></div>
+      </div>
+      <div class="card">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Respuestas individuales</div>
+        <div style="overflow-x:auto">
+          <table class="tbl">
+            <thead><tr><th>Fecha</th><th>Tipo</th><th>Sucursal</th><th>Instructor</th><th>Demo</th><th>Conf.</th><th>Estado</th><th>Comentario</th></tr></thead>
+            <tbody id="d-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card" id="d-comments" style="display:none">
+        <div style="font-size:13px;font-weight:600;margin-bottom:10px">Comentarios abiertos</div>
+        <div id="d-clist"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end app -->
+
+<script>
+// ─── Catálogo exacto del archivo CLFDC ────────────────────────────────────
+const CORP = ["ALAMO","ALEIRA","ANDARES","AV. MEXICO","BOREALES","CENTRO","CHAPALA","CHAPALITA","CHARROS","CORONA","CUCEI","CUCS","FORUM","GALERIAS","GAVILANES","GRAN PLAZA","HUENTITAN","ITESO","JACARANDAS","LA CALMA","LA CIMA","LA PERLA","LEON","LOMA BONITA CAF","LOMAS ALTAS CAF","NODO REVOLUCION","OBLATOS","OBLATOS 2","PABLO NERIDA","PARQUE ROJO","PATRIA","PLAZA DE LUCCA","RATTAN","RUBEN DARIO 4","SANTO TOMAS","SUCURSAL SANTA RITA","TABACHINES","UNIVA"];
+
+const FRQ  = ["ARANDAS","ATEMAJAC","ATOTONILCO","AUTONOMA","BELENES 2","BOX TONALA","BUGAMBILIAS","CATEDRAL","CENTRAL DE AUTOBUSES","CENTRO DE ZAPOPAN 3","CENTRO MEDICO","CENTRO SUR 3","CIRCUNVALACION 1","CIUDAD GRANJA","CIUDAD GUZMAN","COPERNICO","COUNTRY","CRUZ DEL SUR","CULIACAN","EXPO","EXPIATORIO","FISCALIA 2","GOLFO DE CORTEZ","HANGAR 33","HOSPITAL CIVIL VIEJO","HOTEL FENIX","JUAN PABLO II","JUAREZ","LA BARCA","LA CALZADA","LA FONTANA","LA NORMAL","LA PAZ","LA PIEDAD","LA REYNA","LAGOS DE MORENO","LOMAS SUR","LOPEZ COTILLA","LOS CANDADOS","MARIANO OTERO","MIDTOWN","MINERVA 3","MULTIPLAZA","NACIONES UNIDAS PERI","NIÑOS HEROES","NUEVA GALICIA 3","OCOTLAN","PARIAN TLAQUEPAQUE","PASEO ALCALDE","PEDRO MORENO","PLAN DE SAN LUIS","PLAZA ALTEA 2","PLAZA DE ARMAS","PLAZA DEL SOL","PLAZA LAS TORRES","PUNTO LAUREL 2","PUNTO SUR","REVOLUCION","SAHUAYO","SAHUAYO CENTRO","SAN ISIDRO","SAN JUAN DE LOS LAGOS","SANTA TERE","SILVER CENTER","SUC. MEDRANO","SUCURSAL CLINICA 89","TEC DE MONTERREY","TEPATITLAN","TEPATITLAN CENTRO","TEPIC","TERRANOVA","TESISTAN 2","TRANSITO 2","VALLE IMPERIAL","WALMART CD GUZMAN","ZAPOTLANEJO 2","ZOQUIPAN"];
+
+// ─── Estado ───────────────────────────────────────────────────────────────
+const SK = 'brewers_enc_v6';
+const DASH_PASS = 'Cordoba2026';
+let DB = [], meta = {tipo:'',suc:''}, ans = {}, dashUnlocked = false;
+let currentList = [], selectedSuc = '';
+
+function loadDB(){ try{const l=localStorage.getItem(SK);if(l)DB=JSON.parse(l);}catch(e){} }
+function saveDB(){ try{localStorage.setItem(SK,JSON.stringify(DB));}catch(e){} }
+
+// ─── Nav ──────────────────────────────────────────────────────────────────
+function nav(id){
+  document.getElementById('survey').style.display = id==='survey'?'block':'none';
+  document.getElementById('dash').style.display   = id==='dash'?'block':'none';
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('on',(id==='survey'&&i===0)||(id==='dash'&&i===1)));
+  if(id==='dash'){
+    document.getElementById('dash-login').style.display = dashUnlocked?'none':'block';
+    document.getElementById('dash-main').style.display  = dashUnlocked?'block':'none';
+    if(dashUnlocked){ loadDB(); renderDash(); }
+  }
+}
+
+// ─── Dashboard login ──────────────────────────────────────────────────────
+function checkPass(){
+  if(document.getElementById('dash-pass').value === DASH_PASS){
+    dashUnlocked=true;
+    document.getElementById('dash-login').style.display='none';
+    document.getElementById('dash-main').style.display='block';
+    loadDB(); renderDash();
+  } else {
+    document.getElementById('pass-err').style.display='block';
+  }
+}
+
+// ─── Tipo de operación ────────────────────────────────────────────────────
+function selectTipo(tipo){
+  meta.tipo = tipo; meta.suc = ''; selectedSuc = '';
+  document.getElementById('t-corp').classList.toggle('on', tipo==='Corporativa');
+  document.getElementById('t-frq').classList.toggle('on',  tipo==='Franquicia');
+  currentList = tipo==='Corporativa' ? CORP : FRQ;
+  // Reset buscador
+  document.getElementById('suc-search').value = '';
+  document.getElementById('suc-results').style.display = 'none';
+  document.getElementById('suc-results').innerHTML = '';
+  document.getElementById('suc-selected').style.display = 'none';
+  document.getElementById('inst-wrap').style.display = 'none';
+  document.getElementById('search-clear').style.display = 'none';
+  document.getElementById('search-ico').style.display = 'inline';
+  document.getElementById('suc-wrap').style.display = 'block';
+}
+
+// ─── Buscador en tiempo real ──────────────────────────────────────────────
+function onSearch(){
+  const q = document.getElementById('suc-search').value.trim().toUpperCase();
+  const results = document.getElementById('suc-results');
+  const clearBtn = document.getElementById('search-clear');
+  const ico = document.getElementById('search-ico');
+
+  clearBtn.style.display = q ? 'block' : 'none';
+  ico.style.display = q ? 'none' : 'inline';
+
+  if(!q){ results.style.display='none'; results.innerHTML=''; return; }
+
+  const matches = currentList.filter(s => s.toUpperCase().includes(q));
+  results.style.display = 'block';
+
+  if(!matches.length){
+    const q2 = document.getElementById('suc-search').value.trim();
+    results.innerHTML = '<div class="result-empty">No se encontro <strong>'+q2+'</strong> en el catalogo.<br><br><button onclick="selectSuc(\''+q2+' (no catalogada)\')" style="margin-top:8px;padding:9px 16px;background:#534AB7;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;width:100%">Registrar como \''+q2+'\' de todas formas</button></div>';
+    return;
+  }
+
+  results.innerHTML = matches.map(s =>
+    `<div class="result-item" onclick="selectSuc('${s}')">${s}</div>`
+  ).join('');
+}
+
+function selectSuc(name){
+  selectedSuc = name;
+  meta.suc = name;
+  document.getElementById('suc-search').value = '';
+  document.getElementById('suc-results').style.display = 'none';
+  document.getElementById('suc-results').innerHTML = '';
+  document.getElementById('search-clear').style.display = 'none';
+  document.getElementById('search-ico').style.display = 'inline';
+  document.getElementById('suc-selected-name').textContent = name;
+  document.getElementById('suc-selected').style.display = 'block';
+  document.getElementById('inst-wrap').style.display = 'block';
+  // Scroll suave hacia instructor
+  setTimeout(()=>document.getElementById('inst-wrap').scrollIntoView({behavior:'smooth',block:'nearest'}), 100);
+}
+
+function changeSelection(){
+  selectedSuc = ''; meta.suc = '';
+  document.getElementById('suc-selected').style.display = 'none';
+  document.getElementById('inst-wrap').style.display = 'none';
+  document.getElementById('suc-search').value = '';
+  document.getElementById('suc-search').focus();
+}
+
+function clearSearch(){
+  document.getElementById('suc-search').value = '';
+  document.getElementById('suc-results').style.display = 'none';
+  document.getElementById('suc-results').innerHTML = '';
+  document.getElementById('search-clear').style.display = 'none';
+  document.getElementById('search-ico').style.display = 'inline';
+  document.getElementById('suc-search').focus();
+}
+
+// ─── Survey ───────────────────────────────────────────────────────────────
+function startSurvey(){
+  if(!meta.tipo || !meta.suc){ alert('Selecciona tipo de operacion y tu sucursal.'); return; }
+  meta.instructor = document.getElementById('s-inst').value.trim() || 'No especificado';
+  ans = {};
+  document.getElementById('s-intro').style.display = 'none';
+  document.getElementById('s-form').style.display  = 'block';
+  buildStars('q1'); buildStars('q5');
+  buildScale('q3'); buildScale('q7');
+  gotoStep(1);
+}
+
+function buildStars(id){
+  const el=document.getElementById(id); el.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const s=document.createElement('span'); s.className='star'; s.textContent='★';
+    s.addEventListener('click',()=>{ ans[id]=i; document.querySelectorAll('#'+id+' .star').forEach((x,j)=>x.classList.toggle('on',j<i)); });
+    el.appendChild(s);
+  }
+}
+
+function buildScale(id){
+  const el=document.getElementById(id); el.innerHTML='';
+  for(let i=1;i<=10;i++){
+    const b=document.createElement('button'); b.className='sc-btn'; b.textContent=i;
+    b.addEventListener('click',()=>{ ans[id]=i; document.querySelectorAll('#'+id+' .sc-btn').forEach(x=>x.classList.toggle('on',parseInt(x.textContent)===i)); });
+    el.appendChild(b);
+  }
+}
+
+function pick(id,el,val){ ans[id]=val; document.querySelectorAll('#'+id+' .ch').forEach(c=>c.classList.remove('on')); el.classList.add('on'); }
+function multi(id,el,val){ if(!ans[id])ans[id]=[]; if(el.classList.contains('on')){ el.classList.remove('on'); ans[id]=ans[id].filter(v=>v!==val); } else { if(document.querySelectorAll('#'+id+' .ch.on').length>=2)return; el.classList.add('on'); ans[id].push(val); } }
+
+function gotoStep(n){
+  for(let i=1;i<=8;i++){ const e=document.getElementById('step'+i); if(e) e.style.display=i===n?'block':'none'; }
+  document.getElementById('prog').style.width = Math.round(n/8*100)+'%';
+  document.getElementById('prog-lbl').textContent = 'Pregunta '+n+' de 8';
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function next(n){ gotoStep(n+1); }
+function prev(n){ gotoStep(n-1); }
+
+function submitSurvey(){
+  const btn=document.getElementById('send-btn');
+  btn.disabled=true; btn.textContent='Guardando...';
+  ans.q8 = document.getElementById('q8').value.trim();
+  DB.push({ ...meta,
+    fecha: new Date().toLocaleDateString('es-MX'),
+    hora:  new Date().toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}),
+    ts:    Date.now(),
+    q1:ans.q1||0, q2:ans.q2||'', q3:ans.q3||0,
+    q4:ans.q4||[], q5:ans.q5||0, q6:ans.q6||'',
+    q7:ans.q7||0,  q8:ans.q8||''
+  });
+  saveDB();
+  btn.disabled=false; btn.textContent='Enviar';
+  document.getElementById('s-form').style.display='none';
+  document.getElementById('s-done').style.display='block';
+}
+
+function resetSurvey(){
+  ans={}; meta={tipo:'',suc:''}; selectedSuc='';
+  document.getElementById('s-inst').value='';
+  ['t-corp','t-frq'].forEach(id=>document.getElementById(id).classList.remove('on'));
+  ['suc-wrap','inst-wrap'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('suc-selected').style.display='none';
+  document.getElementById('s-done').style.display='none';
+  document.getElementById('s-intro').style.display='block';
+  document.getElementById('prog').style.width='0%';
+}
+
+// ─── Dashboard ────────────────────────────────────────────────────────────
+function getFiltered(){
+  const t=document.getElementById('f-tipo').value, s=document.getElementById('f-suc').value, i=document.getElementById('f-ins').value;
+  return DB.filter(d=>{ if(t&&d.tipo!==t)return false; if(s&&d.suc!==s)return false; if(i&&d.instructor!==i)return false; return true; });
+}
+function clearF(){ ['f-tipo','f-suc','f-ins'].forEach(id=>document.getElementById(id).value=''); renderDash(); }
+
+function barChart(id,data,max,color){
+  const el=document.getElementById(id); if(!el)return;
+  el.innerHTML=[...data].sort((a,b)=>b.val-a.val).map(r=>
+    '<div class="br"><div class="bl">'+r.lbl+'</div><div class="bt"><div class="bf" style="width:'+(max?Math.round(r.val/max*100):0)+'%;background:'+color+'"></div></div><div class="bv">'+(typeof r.val==='number'&&r.val%1!==0?r.val.toFixed(1):r.val)+'</div></div>'
+  ).join('');
+}
+
+function renderDash(){
+  loadDB();
+  const allS=[...new Set(DB.map(d=>d.suc))].filter(Boolean).sort();
+  const allI=[...new Set(DB.map(d=>d.instructor))].filter(Boolean).sort();
+  const fS=document.getElementById('f-suc'), fI=document.getElementById('f-ins');
+  const cS=fS.value, cI=fI.value;
+  fS.innerHTML='<option value="">Todas las sucursales</option>';
+  allS.forEach(s=>{ const o=document.createElement('option'); o.value=s; o.textContent=s; fS.appendChild(o); }); fS.value=cS;
+  fI.innerHTML='<option value="">Todos los instructores</option>';
+  allI.forEach(i=>{ const o=document.createElement('option'); o.value=i; o.textContent=i; fI.appendChild(o); }); fI.value=cI;
+
+  const d=getFiltered();
+  document.getElementById('d-empty').style.display   = d.length?'none':'block';
+  document.getElementById('d-content').style.display = d.length?'block':'none';
+  if(!d.length) return;
+
+  const noPrac=d.filter(r=>r.q2==='No hubo practica real').length;
+  const lowDemo=d.filter(r=>r.q1<=2).length;
+  const badFb=d.filter(r=>r.q6==='No hubo feedback claro').length;
+  const lowConf=d.filter(r=>r.q3<=4).length;
+  const alerts=[];
+  if(noPrac)  alerts.push({c:'al-d',m:'!! '+noPrac+' barista(s) reportan que no hubo practica real.'});
+  if(lowDemo) alerts.push({c:'al-d',m:'!! '+lowDemo+' barista(s) calificaron el demo con 1-2 estrellas.'});
+  if(badFb)   alerts.push({c:'al-w',m:'!  '+badFb+' barista(s) sin feedback claro del instructor.'});
+  if(lowConf) alerts.push({c:'al-w',m:'!  '+lowConf+' barista(s) con confianza baja (<=4/10).'});
+  if(!alerts.length) alerts.push({c:'al-ok',m:'OK Sin alertas. Indicadores dentro del rango esperado.'});
+  document.getElementById('d-alerts').innerHTML=alerts.map(a=>'<div class="al '+a.c+'">'+a.m+'</div>').join('');
+
+  const avg=(arr,k)=>arr.length?+(arr.reduce((a,r)=>a+(r[k]||0),0)/arr.length).toFixed(1):0;
+  const pct=d.length?Math.round(d.filter(r=>r.q2==='Si, fue suficiente').length/d.length*100):0;
+  document.getElementById('d-metrics').innerHTML=
+    '<div class="metric"><div class="metric-val">'+d.length+'</div><div class="metric-lbl">Respuestas</div></div>'+
+    '<div class="metric"><div class="metric-val">'+avg(d,'q1')+'<span style="font-size:12px;color:#6B6880">/5</span></div><div class="metric-lbl">Demo prom.</div></div>'+
+    '<div class="metric"><div class="metric-val">'+avg(d,'q3')+'<span style="font-size:12px;color:#6B6880">/10</span></div><div class="metric-lbl">Confianza</div></div>'+
+    '<div class="metric"><div class="metric-val">'+avg(d,'q5')+'<span style="font-size:12px;color:#6B6880">/5</span></div><div class="metric-lbl">Instructor</div></div>'+
+    '<div class="metric"><div class="metric-val">'+pct+'<span style="font-size:12px">%</span></div><div class="metric-lbl">Practica OK</div></div>';
+
+  barChart('c-q1',[1,2,3,4,5].map(v=>({lbl:'★'.repeat(v),val:d.filter(r=>r.q1===v).length})),d.length,'#534AB7');
+  barChart('c-q3',[...Array(10)].map((_,i)=>({lbl:String(i+1),val:d.filter(r=>r.q3===i+1).length})),d.length,'#1D9E75');
+  const q2o=['Si, fue suficiente','Necesitaba mas tiempo','Fue demasiado tiempo','No hubo practica real'];
+  barChart('c-q2',q2o.map(o=>({lbl:o.substring(0,17),val:d.filter(r=>r.q2===o).length})),Math.max(...q2o.map(o=>d.filter(r=>r.q2===o).length),1),'#BA7517');
+  const q6o=['Explico con claridad que corregir','Me interrumpio y lo hizo el mismo','No hubo feedback claro','No cometi errores'];
+  barChart('c-q6',q6o.map(o=>({lbl:o.substring(0,17),val:d.filter(r=>r.q6===o).length})),Math.max(...q6o.map(o=>d.filter(r=>r.q6===o).length),1),'#1B7A6E');
+  const q4o=['Demo en vivo','Practica real','Speech de venta','Receta laminada','Manejo de objeciones','Perfil de sabores'];
+  barChart('c-q4',q4o.map(o=>({lbl:o,val:d.filter(r=>r.q4&&r.q4.includes(o)).length})),d.length,'#D85A30');
+  barChart('c-tipo',['Corporativa','Franquicia'].map(t=>{ const td=d.filter(r=>r.tipo===t); return{lbl:t,val:td.length?avg(td,'q1'):0}; }),5,'#534AB7');
+  const sucs=[...new Set(d.map(r=>r.suc))].filter(Boolean);
+  barChart('c-suc',sucs.map(s=>{ const sd=d.filter(r=>r.suc===s); return{lbl:s.substring(0,14),val:sd.length?avg(sd,'q1'):0,n:sd.length}; }).filter(x=>x.n>0).sort((a,b)=>b.val-a.val).slice(0,8),5,'#0F6E56');
+
+  document.getElementById('d-tbody').innerHTML=d.slice().reverse().map(r=>{
+    const ok=r.q1>=4&&r.q3>=7;
+    return '<tr><td>'+(r.fecha||'')+' '+(r.hora||'')+'</td>'+
+      '<td><span class="bdg '+(r.tipo==='Corporativa'?'bb':'bt2')+'">'+(r.tipo==='Corporativa'?'Corp':'Frq')+'</span></td>'+
+      '<td style="font-size:11px">'+(r.suc||'-')+'</td>'+
+      '<td style="font-size:11px">'+(r.instructor||'-')+'</td>'+
+      '<td><span class="bdg '+(r.q1>=4?'bg':r.q1>=3?'ba':'br2')+'">'+(r.q1||0)+'/5</span></td>'+
+      '<td><span class="bdg '+(r.q3>=7?'bg':r.q3>=5?'ba':'br2')+'">'+(r.q3||0)+'/10</span></td>'+
+      '<td><span class="bdg '+(ok?'bg':'ba')+'">'+(ok?'OK':'Revisar')+'</span></td>'+
+      '<td style="max-width:120px;font-size:11px">'+(r.q8||'-')+'</td></tr>';
+  }).join('');
+
+  const comms=d.filter(r=>r.q8).reverse();
+  document.getElementById('d-comments').style.display=comms.length?'block':'none';
+  document.getElementById('d-clist').innerHTML=comms.map(r=>
+    '<div class="comm-item"><div style="display:flex;gap:6px;margin-bottom:4px;flex-wrap:wrap;align-items:center">'+
+    '<span class="bdg '+(r.tipo==='Corporativa'?'bb':'bt2')+'">'+r.tipo+'</span>'+
+    '<span class="bdg bp">'+r.suc+'</span>'+
+    '<span style="font-size:11px;color:#6B6880">'+r.instructor+' &middot; '+r.fecha+'</span></div>'+
+    '<p style="font-size:13px;color:#4A4060;margin:0;line-height:1.5">'+r.q8+'</p></div>'
+  ).join('');
+}
+
+loadDB();
+</script>
+</body>
+</html>
